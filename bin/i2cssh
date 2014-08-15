@@ -30,13 +30,25 @@ def get_hosts(c)
     end
 end
 
+def get_vagrant_hosts()
+    puts "Vagrant mode; finding hosts..."
+    if File.file?("./Vagrantfile")
+        cluster = "vagrant"
+        @servers = `vagrant ssh-config | grep "Host " | awk '{print $2}'`.split("\n")
+        puts "Found %d virtual servers" % @servers.length
+    else
+        puts "Vagrantfile not found - try again in a Vagrant project directory"
+        exit 1
+    end
+end
+
 def set_options(config_hash, login_override=nil)
     if config_hash["columns"] and config_hash["rows"] then
         puts "CONFIG ERROR: rows and columns can't be used at the same time"
         exit 1
     end
 
-    [:broadcast, :profile, :rank, :iterm2, :login, :columns, :rows, :sleep, :direction, :itermname].each do |p|
+    [:broadcast, :vagrant, :profile, :rank, :iterm2, :login, :columns, :rows, :sleep, :direction, :itermname].each do |p|
         @i2_options[p] = config_hash[p.to_s].nil? ? @i2_options[p] : config_hash[p.to_s]
     end
 
@@ -165,6 +177,11 @@ optparse = OptionParser.new do |opts|
         'Additional ssh parameters (e.g. -Xi=myidentity.pem)' do |x|
 
          ssh_options << "-" + x.split("=").join(" ")
+    end
+    opts.on '-v', '--vagrant',
+        'Vagrant mode' do
+         opts_from_cmdline[:vagrant] = true
+         get_vagrant_hosts
     end
 
 end

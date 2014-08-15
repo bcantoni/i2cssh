@@ -110,24 +110,27 @@ class I2Cssh
 
     def start_ssh
         1.upto(@rows*@columns) do |i|
-            @term.sessions[i].write :text => "/bin/bash -l"
+            #@term.sessions[i].write :text => "/bin/bash -l"
 
             server = @servers[i-1]
             if server then
-                send_env = ""
-
-                if @i2_options[:rank] then
-                    @ssh_environment['LC_RANK'] = i-1
+                if @i2_options[:vagrant] then
+                    cwd = Dir.pwd
+                    @term.sessions[i].write :text => "cd #{cwd} && vagrant ssh #{server}"
+                else
+                    send_env = ""
+                    if @i2_options[:rank] then
+                        @ssh_environment['LC_RANK'] = i-1
+                    end
+                    if !@ssh_environment.empty? then
+                        send_env = "-o SendEnv=#{@ssh_environment.keys.join(",")}"
+                        @term.sessions[i].write :text => "#{@ssh_environment.map{|k,v| "export #{k}=#{v}"}.join('; ')}"
+                    end
+                    if @i2_options[:sleep] then
+                        sleep @i2_options[:sleep] * i
+                    end
+                    @term.sessions[i].write :text => "unset HISTFILE && echo -e \"\\033]50;SetProfile=#{@profile}\\a\" && #{@ssh_prefix} #{send_env} #{server}"
                 end
-
-                if !@ssh_environment.empty? then
-                    send_env = "-o SendEnv=#{@ssh_environment.keys.join(",")}"
-                    @term.sessions[i].write :text => "#{@ssh_environment.map{|k,v| "export #{k}=#{v}"}.join('; ')}"
-                end
-                if @i2_options[:sleep] then
-                    sleep @i2_options[:sleep] * i
-                end
-                @term.sessions[i].write :text => "unset HISTFILE && echo -e \"\\033]50;SetProfile=#{@profile}\\a\" && #{@ssh_prefix} #{send_env} #{server}"
             else
                 
                 @term.sessions[i].write :text => "unset HISTFILE && echo -e \"\\033]50;SetProfile=#{@profile}\\a\""

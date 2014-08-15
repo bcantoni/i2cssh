@@ -8,6 +8,11 @@ to all sessions.
 
     $ gem install i2cssh
 
+To build and install from this source:
+
+    $ gem uninstall i2cssh
+    $ rake install
+
 ## Usage
     Usage: i2cssh [options]  [(username@host [username@host] | username@cluster)]
     -A, --forward-agent              Enable SSH agent forwarding
@@ -26,6 +31,7 @@ to all sessions.
     -r, --rank                       Send LC_RANK with the host number as environment variable
     -m, --machines a,b,c             Comma-separated list of hosts
     -s, --sleep SLEEP                Number of seconds to sleep between creating SSH sessions
+    -v, --vagrant                    Vagrant mode
     -X, --extra EXTRA_PARAM          Additional ssh parameters (e.g. -Xi=myidentity.pem)
 
 i2cssh will assume you want to connect to a cluster when only one host is given.
@@ -148,6 +154,10 @@ Connect to the machines a, b and c
 ### -s, --sleep SLEEP
 
 Wait SLEEP seconds between starting each ssh session. This will take decimals as well (0.5 for half a second)
+
+### -v, --vagrant
+
+Connect with Vagrant virtual machines. This command will work when in the working directory for a Vagrant cluster. (E.g., if `vagrant ssh-config` works and the virtual machines are up, `i2cssh -v` should connect with all of them.)
 
 ### -X, --extra EXTRA
 
