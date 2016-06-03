@@ -4,7 +4,13 @@ i2cssh is a csshX (http://code.google.com/p/csshx/) like tool for connecting ove
 a master window for input, i2cssh uses iterm2 split panes and "Send input to all sessions" (cmd-shift-i) to send commands
 to all sessions.
 
-## Installing 
+## Installing
+
+When using iTerm2 < 2.9, install i2cssh version 1.16.0:
+
+    $ gem install i2cssh -v 1.16.0
+
+Otherwise, just run:
 
     $ gem install i2cssh
 
@@ -14,10 +20,16 @@ To build and install from this source:
     $ rake install
 
 ## Usage
-    Usage: i2cssh [options]  [(username@host [username@host] | username@cluster)]
+    Usage: i2cssh [options] [(username@host [username@host] | username@cluster)]
+    -c, --clusters clus1,clus2       Comma-separated list of clusters specified in ~/.i2csshrc
+    -m, --machines a,b,c             Comma-separated list of hosts
+    -f, --file FILE                  Cluster file (one hostname per line)
+    -t, --tab-split                  Split servers/clusters into tabs (group arguments)
+    -T, --tab-split-nogroup          Split servers/clusters into tabs (don't group arguments)
     -A, --forward-agent              Enable SSH agent forwarding
     -l, --login LOGIN                SSH login name
     -e, --environment KEY=VAL        Send environment vars (comma-separated list, need to start with LC_)
+    -r, --rank                       Send LC_RANK with the host number as environment variable
     -F, --fullscreen                 Make the window fullscreen
     -C, --columns COLUMNS            Number of columns (rows will be calculated)
     -R, --rows ROWS                  Number of rows (columns will be calculated)
@@ -26,12 +38,9 @@ To build and install from this source:
     -p, --profile PROFILE            Name of the iTerm2 profile (default: Default)
     -2, --iterm2                     Use iTerm2 instead of iTerm
     -i, --itermname NAME             Name of the application to use (default: iTerm)
-    -f, --file FILE                  Cluster file (one hostname per line)
-    -c, --cluster CLUSTERNAME        Name of the cluster specified in ~/.i2csshrc
-    -r, --rank                       Send LC_RANK with the host number as environment variable
-    -m, --machines a,b,c             Comma-separated list of hosts
     -s, --sleep SLEEP                Number of seconds to sleep between creating SSH sessions
     -v, --vagrant                    Vagrant mode
+    -d, --direction DIRECTION        Direction that new sessions are created (default: column)
     -X, --extra EXTRA_PARAM          Additional ssh parameters (e.g. -Xi=myidentity.pem)
 
 i2cssh will assume you want to connect to a cluster when only one host is given.
@@ -42,6 +51,10 @@ The following commands are exactly the same, however, they might serve different
 
     $ i2cssh -m user1@host1,user2@host2
     $ i2cssh user1@host1 user2@host2
+
+You can combine these options and use them multiple times:
+
+    $ i2cssh -m user1@host1,user2@host2 -m user3@host3 user4@host4 user5@host5
 
 Using the `-l` option will override all usernames:
 
@@ -63,7 +76,7 @@ The `i2csshrc` file is a YAML formatted file that contains the following structu
           - host1
           - host2
 
-Optional parameters can be used globablly or per cluster and include:
+Optional parameters can be used globally or per cluster and include:
 
     broadcast: (true/false)     # Enable/disable broadcast on start
     login: <username>           # Use this username for login
@@ -78,7 +91,7 @@ Optional parameters can be used globablly or per cluster and include:
     environment:                # Send the following enviroment variables
         - LC_FOO: foo
         - LC_BAR: bar
-    
+
     iterm2: true                # Use iTerm2.app instead of iTerm.app (only available globally)
 
 Note: rows and columns can't be used together.
@@ -139,9 +152,9 @@ Name of the application to use (default: iTerm). It happens sometimes iTerm isn'
 
 Will read nodes from a file. These will be added to any hosts specified on the command line or in the config
 
-### -c, --cluster
+### -c, --clusters clus1,clus2
 
-Connect to a cluster that is specified in the config
+Connect to one or more clusters that are specified in the config
 
 ### -r, --rank
 
@@ -150,6 +163,16 @@ Send a LC_RANK environment variable different for each host (from 0 to n)
 ### -m, --machines a,b,c
 
 Connect to the machines a, b and c
+
+### -t, --tab-split
+
+Split servers/clusters into tabs, grouping arguments.
+Tabs are created as follows: hosts after a -m option are put in one tab, each cluster is always in its own tab, all the arguments are in one tab.
+
+### -T, --tab-split-nogroup
+
+Split servers/clusters into tabs, *not* grouping arguments.
+Tabs are created as follows: hosts after a -m option are put in one tab, each cluster is always in its own tab, each argument is in its own tab.
 
 ### -s, --sleep SLEEP
 
@@ -165,7 +188,7 @@ Set extra ssh parameters in the form -Xk=v. For example:
 
     i2cssh -Xi=myidentity.pem
 
-will result in 
+will result in
 
     ssh -i myidentity.pem
 
@@ -177,11 +200,6 @@ will result in
 
     ssh -p 2222 -L 8080:localhost:8080
 
-## Known issues
-
-- i2cssh uses rb-appscript and that only seems to work on ruby 1.8.7 and breaks on 1.9.x
-- appscript is no longer supported (http://appscript.sourceforge.net/status.html). This means that i2cssh might have to move to something else in the future. I haven't really looked at anything, but let me know if you find a good alternative!
-
 ## TODO
 
 - Functional parity with csshX (as far as possible)
@@ -189,9 +207,9 @@ will result in
 
 ## Contributing to i2cssh
 
-I know that i2cssh doesn't have all the functionality of csshX, but either let me know what you really need or 
+I know that i2cssh doesn't have all the functionality of csshX, but either let me know what you really need or
 fork, hack and create a pull request.
- 
+
  * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
  * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
  * Fork the project
@@ -204,4 +222,3 @@ fork, hack and create a pull request.
 
 Copyright (c) 2011-2012 Wouter de Bie. See LICENSE.txt for
 further details.
-
