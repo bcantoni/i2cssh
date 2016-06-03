@@ -37,8 +37,8 @@ def get_vagrant_hosts()
     puts "Vagrant mode; finding hosts..."
     if File.file?("./Vagrantfile")
         cluster = "vagrant"
-        @servers = `vagrant ssh-config | grep "Host " | awk '{print $2}'`.split("\n")
-        puts "Found %d virtual servers" % @servers.length
+        @servers << `vagrant ssh-config | grep "Host " | awk '{print $2}'`.split("\n")
+        puts "Found %d Vagrant server(s)" % @servers.first.size
     else
         puts "Vagrantfile not found - try again in a Vagrant project directory"
         exit 1

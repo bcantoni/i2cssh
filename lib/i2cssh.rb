@@ -119,10 +119,9 @@ class I2Cssh
         old_size = 0
 
         1.upto(@rows*@columns) do |i|
-            #@term.sessions[i].write :text => "/bin/bash -l"
             tab = @window.current_tab
             session = tab.sessions[i]
-            session.write :text => "/usr/bin/env bash -l"
+            #session.write :text => "/usr/bin/env bash -l"
 
             # Without the tab flag, combine all servers and clusters into one window
             if !@servers.empty? && (i - old_size) > @servers.first.size && !@i2_options.first[:tabs]
@@ -140,9 +139,10 @@ class I2Cssh
 
 
             if server then
-                if @i2_options[:vagrant] then
+                puts server
+                if @i2_options.first[:vagrant] then
                     cwd = Dir.pwd
-                    @term.sessions[i].write :text => "cd #{cwd} && vagrant ssh #{server}"
+                    session.write :text => "cd #{cwd} && vagrant ssh #{server}"
                 else
                     send_env = ""
 
